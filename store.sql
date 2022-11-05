@@ -82,7 +82,7 @@ CREATE TABLE HAS
     FOREIGN KEY (License) REFERENCES STORE,
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
 );
-
+-- This trigger will check for Customer's info
 CREATE OR REPLACE FUNCTION check_customer_address()
 RETURNS TRIGGER AS $check_customer_address$
     BEGIN
@@ -96,3 +96,17 @@ CREATE TRIGGER check_customer_address
     BEFORE INSERT ON CUSTOMER
     FOR EACH ROW
     EXECUTE PROCEDURE check_customer_address();
+-- This trigger will check for the Store's info
+CREATE OR REPLACE FUNCTION check_store_info()
+RETURNS TRIGGER AS $check_store_info$
+    BEGIN
+        IF (NEW.Name IS NULL) OR (NEW.Phone IS NULL) OR  (NEW.State IS NULL) OR (NEW.City IS NULL) OR (NEW.ZIP IS NULL) OR (NEW.Street IS NULL) THEN
+        RAISE EXCEPTION 'Stores need a name and a valid address.';
+        END IF;
+    END;
+    $check_store_info$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_store_info
+    BEFORE INSERT ON STORE
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_store_info();
