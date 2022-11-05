@@ -82,3 +82,17 @@ CREATE TABLE HAS
     FOREIGN KEY (License) REFERENCES STORE,
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
 );
+
+CREATE OR REPLACE FUNCTION check_customer_address()
+RETURNS TRIGGER AS $check_customer_address$
+    BEGIN
+        IF (NEW.state IS NULL) OR (NEW.city IS NULL) OR (NEW.zip IS NULL) OR (NEW.street IS NULL) THEN
+        RAISE EXCEPTION 'Enter a valid address.';
+        END IF;
+    END;
+    $check_customer_address$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_customer_address
+    BEFORE INSERT ON CUSTOMER
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_customer_address();
