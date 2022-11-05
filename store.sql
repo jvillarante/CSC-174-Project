@@ -72,7 +72,7 @@ CREATE TABLE AUTHORS
 CREATE TABLE COMICS
 (
     ISBN CHAR(13) NOT NULL,
-    Artist VARCHAR(20),  -- add a trigger to enforce NOT NULL
+    Artist VARCHAR(20),
     PRIMARY KEY (ISBN),
     FOREIGN KEY (ISBN) REFERENCES BOOKS(ISBN)
 );
@@ -129,6 +129,21 @@ CREATE TRIGGER check_store_info
     FOR EACH ROW
     EXECUTE PROCEDURE check_store_info();
 
+--This trigger will make sure that quantity is of merchandise bought is greater than 0.
+CREATE OR REPLACE FUNCTION check_quantity()
+RETURNS TRIGGER AS $check_quantity$
+    BEGIN
+        IF NEW.Quantity =< 0 THEN
+        RAISE EXCEPTION 'Quantity must be greater than 0.';
+        END IF;
+    END;
+    $check_quantity$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_quantity
+    BEFORE INSERT ON BUYS
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_quantity();
+
 -- This trigger will check if the comic has an artist
 CREATE OR REPLACE FUNCTION comic_has_artist()
 RETURNS TRIGGER AS $check_comic_artist$
@@ -143,3 +158,4 @@ CREATE TRIGGER comic_has_artist
     BEFORE INSERT ON COMICS
     FOR EACH ROW
     EXECUTE PROCEDURE comic_has_artist();
+
