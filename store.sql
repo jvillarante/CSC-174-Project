@@ -106,6 +106,7 @@ RETURNS TRIGGER AS $check_customer_address$
         IF (NEW.state IS NULL) OR (NEW.city IS NULL) OR (NEW.zip IS NULL) OR (NEW.street IS NULL) THEN
         RAISE EXCEPTION 'Enter a valid address.';
         END IF;
+        RETURN NEW;
     END;
     $check_customer_address$ LANGUAGE plpgsql;
 
@@ -118,9 +119,11 @@ CREATE TRIGGER check_customer_address
 CREATE OR REPLACE FUNCTION check_store_info()
 RETURNS TRIGGER AS $check_store_info$
     BEGIN
-        IF (NEW.Name IS NULL) OR (NEW.Phone IS NULL) OR  (NEW.State IS NULL) OR (NEW.City IS NULL) OR (NEW.ZIP IS NULL) OR (NEW.Street IS NULL) THEN
+        IF (NEW.Name IS NULL) OR (NEW.Phone IS NULL) OR  (NEW.State IS NULL) OR (NEW.City IS NULL) OR (NEW.ZIP IS NULL)
+            OR (NEW.Street IS NULL) THEN
         RAISE EXCEPTION 'Stores need a name and a valid address.';
         END IF;
+        RETURN NEW;
     END;
     $check_store_info$ LANGUAGE plpgsql;
 
@@ -130,19 +133,20 @@ CREATE TRIGGER check_store_info
     EXECUTE PROCEDURE check_store_info();
 
 --This trigger will make sure that quantity is of merchandise bought is greater than 0.
-CREATE OR REPLACE FUNCTION check_quantity()
-RETURNS TRIGGER AS $check_quantity$
+CREATE OR REPLACE FUNCTION check_quantity_buys()
+RETURNS TRIGGER AS $check_quantity_buys$
     BEGIN
         IF NEW.Quantity =< 0 THEN
         RAISE EXCEPTION 'Quantity must be greater than 0.';
         END IF;
+        RETURN NEW;
     END;
-    $check_quantity$ LANGUAGE plpgsql;
+    $check_quantity_buys$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_quantity
+CREATE TRIGGER check_quantity_buys
     BEFORE INSERT ON BUYS
     FOR EACH ROW
-    EXECUTE PROCEDURE check_quantity();
+    EXECUTE PROCEDURE check_quantity_buys();
 
 -- This trigger will check if the comic has an artist
 CREATE OR REPLACE FUNCTION comic_has_artist()
@@ -151,6 +155,7 @@ RETURNS TRIGGER AS $check_comic_artist$
         IF NEW.Artist IS NULL THEN
             RAISE EXCEPTION 'Comic needs an artist';
         END IF;
+        RETURN NEW;
     END;
     $check_comic_artist$ LANGUAGE plpgsql;
 
@@ -158,4 +163,20 @@ CREATE TRIGGER comic_has_artist
     BEFORE INSERT ON COMICS
     FOR EACH ROW
     EXECUTE PROCEDURE comic_has_artist();
+
+-- This trigger checks to see if store has a quantity of at least 0
+CREATE OR REPLACE FUNCTION store_has_quantity()
+RETURNS TRIGGER AS $store_has_quantity$
+    BEGIN
+        IF NEW.Quantity < 0 THEN
+            RAISE EXCEPTION 'Store must have at least 0 items';
+        END IF;
+        RETURN NEW;
+    END;
+$store_has_quantity$ LANGUAGE plpgsql;
+
+CREATE TRIGGER store_has_quantity
+    BEFORE INSERT ON HAS
+    FOR EACH ROW
+    EXECUTE PROCEDURE store_has_quantity();
 
