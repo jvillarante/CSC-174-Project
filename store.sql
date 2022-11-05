@@ -38,12 +38,16 @@ CREATE TABLE BUYS
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
 );
 
+-- ENUMs for table VIDEO_GAME
+CREATE TYPE rating AS ENUM('E', 'T', 'M');
+CREATE TYPE platform AS ENUM('Playstation', 'Xbox', 'Nintendo', 'PC');
+
 CREATE TABLE VIDEO_GAME
 (
     UPC CHAR(12) NOT NULL,
     MID CHAR(9),
-    Rating VARCHAR(5), -- create an enum for Rating
-    Platform VARCHAR(20),  -- create an enum for Platform type
+    Rating rating NOT NULL,
+    Platform platform NOT NULL,
     PRIMARY KEY (UPC),
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
 );
@@ -124,3 +128,18 @@ CREATE TRIGGER check_store_info
     BEFORE INSERT ON STORE
     FOR EACH ROW
     EXECUTE PROCEDURE check_store_info();
+
+-- This trigger will check if the comic has an artist
+CREATE OR REPLACE FUNCTION comic_has_artist()
+RETURNS TRIGGER AS $check_comic_artist$
+    BEGIN
+        IF NEW.Artist IS NULL THEN
+            RAISE EXCEPTION 'Comic needs an artist';
+        END IF;
+    END;
+    $check_comic_artist$ LANGUAGE plpgsql;
+
+CREATE TRIGGER comic_has_artist
+    BEFORE INSERT ON COMICS
+    FOR EACH ROW
+    EXECUTE PROCEDURE comic_has_artist();
