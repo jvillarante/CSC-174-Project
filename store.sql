@@ -1,8 +1,8 @@
 CREATE TABLE CUSTOMER
 (
     CID CHAR(9) NOT NULL,
-    First VARCHAR(20),
-    Last VARCHAR(20),
+    First VARCHAR(20) NOT NULL,
+    Last VARCHAR(20) NOT NULL,
     State CHAR(2),
     City VARCHAR(20),
     ZIP CHAR(5),
@@ -32,7 +32,7 @@ CREATE TABLE BUYS
 (
     CID CHAR(9) NOT NULL,
     MID CHAR(9) NOT NULL,
-    Quantity INT,
+    Quantity INT,   -- add a trigger to make sure Quantity >= 0
     PRIMARY KEY (CID, MID),
     FOREIGN KEY (CID) REFERENCES CUSTOMER(CID),
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
@@ -42,8 +42,8 @@ CREATE TABLE VIDEO_GAME
 (
     UPC CHAR(12) NOT NULL,
     MID CHAR(9),
-    Rating VARCHAR(5),
-    Platform VARCHAR(20),
+    Rating VARCHAR(5), -- create an enum for Rating
+    Platform VARCHAR(20),  -- create an enum for Platform type
     PRIMARY KEY (UPC),
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
 );
@@ -68,7 +68,7 @@ CREATE TABLE AUTHORS
 CREATE TABLE COMICS
 (
     ISBN CHAR(13) NOT NULL,
-    Artist VARCHAR(20),
+    Artist VARCHAR(20),  -- add a trigger to enforce NOT NULL
     PRIMARY KEY (ISBN),
     FOREIGN KEY (ISBN) REFERENCES BOOKS(ISBN)
 );
@@ -89,7 +89,7 @@ CREATE TABLE HAS
 (
     License VARCHAR(20) NOT NULL,
     MID CHAR(9) NOT NULL,
-    Quantity INT,
+    Quantity INT,   -- make a trigger to check that Quantity >= 0
     PRIMARY KEY (License, MID),
     FOREIGN KEY (License) REFERENCES STORE,
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
