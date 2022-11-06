@@ -180,3 +180,26 @@ CREATE TRIGGER store_has_quantity
     FOR EACH ROW
     EXECUTE PROCEDURE store_has_quantity();
 
+-- Stored procedure to update HAS.quantity whenever there's a new insert into BUYS
+CREATE OR REPLACE PROCEDURE can_buy(IN value integer, IN m CHAR)
+LANGUAGE SQL
+AS $$
+    UPDATE HAS
+    SET quantity = quantity + value
+    WHERE HAS.MID = m;
+    $$;
+
+-- Trigger that calls the stored procedure when inserting into BUYS
+CREATE OR REPLACE FUNCTION update_has_quantity()
+RETURNS TRIGGER AS $update_has_quantity$
+    BEGIN
+        CALL can_buy(NEW.Quantity, NEW.MID);
+        RETURN NEW;
+    end;
+    $update_has_quantity$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_has_quantity
+    BEFORE INSERT ON BUYS
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_has_quantity();
+
