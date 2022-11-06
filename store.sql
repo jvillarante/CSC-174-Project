@@ -3,10 +3,10 @@ CREATE TABLE CUSTOMER
     CID CHAR(9) NOT NULL,
     First VARCHAR(20) NOT NULL,
     Last VARCHAR(20) NOT NULL,
-    State CHAR(2),
-    City VARCHAR(20),
-    ZIP CHAR(5),
-    Street VARCHAR(25),
+    State CHAR(2) NOT NULL,
+    City VARCHAR(20) NOT NULL,
+    ZIP CHAR(5) NOT NULL,
+    Street VARCHAR(25) NOT NULL,
     PRIMARY KEY (CID)
 );
 
@@ -72,7 +72,7 @@ CREATE TABLE AUTHORS
 CREATE TABLE COMICS
 (
     ISBN CHAR(13) NOT NULL,
-    Artist VARCHAR(20),
+    Artist VARCHAR(20) NOT NULL,
     PRIMARY KEY (ISBN),
     FOREIGN KEY (ISBN) REFERENCES BOOKS(ISBN)
 );
@@ -80,12 +80,12 @@ CREATE TABLE COMICS
 CREATE TABLE STORE
 (
     License VARCHAR(20) NOT NULL,
-    Name VARCHAR(20),
-    Phone CHAR(11),
-    State CHAR(2),
-    City VARCHAR(20),
-    ZIP CHAR(5),
-    Street VARCHAR(25),
+    Name VARCHAR(20) NOT NULL,
+    Phone CHAR(11) NOT NULL,
+    State CHAR(2) NOT NULL,
+    City VARCHAR(20) NOT NULL,
+    ZIP CHAR(5) NOT NULL,
+    Street VARCHAR(25) NOT NULL,
     PRIMARY KEY (License)
 );
 
@@ -99,44 +99,11 @@ CREATE TABLE HAS
     FOREIGN KEY (MID) REFERENCES MERCHANDISE(MID)
 );
 
--- This trigger will check for Customer's address info
-CREATE OR REPLACE FUNCTION check_customer_address()
-RETURNS TRIGGER AS $check_customer_address$
-    BEGIN
-        IF (NEW.state IS NULL) OR (NEW.city IS NULL) OR (NEW.zip IS NULL) OR (NEW.street IS NULL) THEN
-        RAISE EXCEPTION 'Enter a valid address.';
-        END IF;
-        RETURN NEW;
-    END;
-    $check_customer_address$ LANGUAGE plpgsql;
-
-CREATE TRIGGER check_customer_address
-    BEFORE INSERT ON CUSTOMER
-    FOR EACH ROW
-    EXECUTE PROCEDURE check_customer_address();
-
--- This trigger will check for the Store's info
-CREATE OR REPLACE FUNCTION check_store_info()
-RETURNS TRIGGER AS $check_store_info$
-    BEGIN
-        IF (NEW.Name IS NULL) OR (NEW.Phone IS NULL) OR  (NEW.State IS NULL) OR (NEW.City IS NULL) OR (NEW.ZIP IS NULL)
-            OR (NEW.Street IS NULL) THEN
-        RAISE EXCEPTION 'Stores need a name and a valid address.';
-        END IF;
-        RETURN NEW;
-    END;
-    $check_store_info$ LANGUAGE plpgsql;
-
-CREATE TRIGGER check_store_info
-    BEFORE INSERT ON STORE
-    FOR EACH ROW
-    EXECUTE PROCEDURE check_store_info();
-
---This trigger will make sure that quantity is of merchandise bought is greater than 0.
+--This trigger will make sure that quantity of merchandise bought is greater than 0.
 CREATE OR REPLACE FUNCTION check_quantity_buys()
 RETURNS TRIGGER AS $check_quantity_buys$
     BEGIN
-        IF NEW.Quantity =< 0 THEN
+        IF NEW.Quantity <= 0 THEN
         RAISE EXCEPTION 'Quantity must be greater than 0.';
         END IF;
         RETURN NEW;
@@ -147,22 +114,6 @@ CREATE TRIGGER check_quantity_buys
     BEFORE INSERT ON BUYS
     FOR EACH ROW
     EXECUTE PROCEDURE check_quantity_buys();
-
--- This trigger will check if the comic has an artist
-CREATE OR REPLACE FUNCTION comic_has_artist()
-RETURNS TRIGGER AS $check_comic_artist$
-    BEGIN
-        IF NEW.Artist IS NULL THEN
-            RAISE EXCEPTION 'Comic needs an artist';
-        END IF;
-        RETURN NEW;
-    END;
-    $check_comic_artist$ LANGUAGE plpgsql;
-
-CREATE TRIGGER comic_has_artist
-    BEFORE INSERT ON COMICS
-    FOR EACH ROW
-    EXECUTE PROCEDURE comic_has_artist();
 
 -- This trigger checks to see if store has a quantity of at least 0
 CREATE OR REPLACE FUNCTION store_has_quantity()
