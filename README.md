@@ -2,4 +2,5 @@
 Database management project
 
 ##Contributors
-Josiah Villarante
+Josiah Villarante  
+Quintilian Huynh  
