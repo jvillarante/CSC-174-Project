@@ -34,5 +34,14 @@ public class Backend {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        try {
+            Connection conn = DriverManager.getConnection(url, username, password);
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO merchandise VALUES (?)");
+            statement.setString(1, "B");
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
