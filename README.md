@@ -1,5 +1,5 @@
 # CSC-174-Project
 Database management project
 
-##Contributors
+## Contributors
 Josiah Villarante
