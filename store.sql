@@ -1,13 +1,12 @@
 CREATE TABLE CUSTOMER
 (
-    CID CHAR(9) NOT NULL,
-    First VARCHAR(20) NOT NULL,
-    Last VARCHAR(20) NOT NULL,
-    State CHAR(2) NOT NULL,
-    City VARCHAR(20) NOT NULL,
-    ZIP CHAR(5) NOT NULL,
-    Street VARCHAR(25) NOT NULL,
-    PRIMARY KEY (CID)
+    CID serial primary key,
+    First VARCHAR(20),
+    Last VARCHAR(20),
+    State CHAR(2),
+    City VARCHAR(20),
+    ZIP CHAR(5),
+    Street VARCHAR(25)
 );
 
 -- ENUM for PAYMENT_METHODS.PaymentType

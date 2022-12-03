@@ -52,6 +52,9 @@ public class Backend {
 
         try {
             conn = connect();
+            insertCustomerName(conn, "Josiah");
+            insertCustomerName(conn, "Jorge");
+            insertCustomerName(conn, "Quin");
             printCustomerTable(conn);
         } finally {
             try {
@@ -90,6 +93,16 @@ public class Backend {
                 System.out.println(data);
 
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void insertCustomerName(Connection conn, String name) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO customer (first) VALUES (?)");
+            statement.setString(1, name);
+            statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
